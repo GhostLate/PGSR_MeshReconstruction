@@ -160,11 +160,14 @@ def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParam
             path = os.path.join(dataset.model_path, "mesh")
             os.makedirs(path, exist_ok=True)
             
-            o3d.io.write_triangle_mesh(os.path.join(path, "tsdf_fusion.ply"), mesh, 
+            sub_name = f'_v-{voxel_size}_d-{max_depth}'
+            if use_depth_filter:
+                sub_name += '_f'
+            o3d.io.write_triangle_mesh(os.path.join(path, f"tsdf_fusion{sub_name}.ply"), mesh,
                                        write_triangle_uvs=True, write_vertex_colors=True, write_vertex_normals=True)
             
             mesh = post_process_mesh(mesh, num_cluster)
-            o3d.io.write_triangle_mesh(os.path.join(path, "tsdf_fusion_post.ply"), mesh, 
+            o3d.io.write_triangle_mesh(os.path.join(path, f"tsdf_fusion{sub_name}_post.ply"), mesh,
                                        write_triangle_uvs=True, write_vertex_colors=True, write_vertex_normals=True)
 
         if not skip_test:

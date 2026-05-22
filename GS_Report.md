@@ -46,6 +46,9 @@ Both *masked* (foreground only) and *unmasked* variants were tested. Object mask
 
 ![colmap image](report/colmap.png)
 
+You can download all prepared data here:
+[COLMAP Data](https://drive.google.com/file/d/1SXHbvIoL8Qv6bkHoicJq2mYaEnAow2MJ/view?usp=drive_link)
+
 ### Key COLMAP findings
 
 - **Full resolution + no filtering (`base_r1`)** registered all 87 frames with 44 601 points and a mean reprojection error of 0.57 px.
@@ -118,6 +121,8 @@ Each reconstructed mesh was rigidly aligned to the ground-truth scanner mesh in 
 
 [Mesh Example Images](Meshes.md)
 
+You can download all eval data and aligned and cutted meshes here:
+[Eval Data](https://drive.google.com/file/d/1wbiKDa1E_N_gL8U0Bp4M4dXqN5l-AHUr/view?usp=drive_link)
 ---
 
 ## 5. Discussion

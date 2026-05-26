@@ -22,12 +22,16 @@ def load_points(path, n_samples, voxel_size=None):
     geom = o3d.io.read_triangle_mesh(path)
     if len(geom.triangles) > 0:
         geom.remove_unreferenced_vertices()
+        n_vertices = len(geom.vertices)
+        n_triangles = len(geom.triangles)
         pcd = geom.sample_points_uniformly(number_of_points=n_samples)
     else:
         pcd = o3d.io.read_point_cloud(path)
+        n_vertices = len(pcd.points)
+        n_triangles = 0
     if voxel_size is not None and voxel_size > 0:
         pcd = pcd.voxel_down_sample(voxel_size)
-    return np.asarray(pcd.points), pcd
+    return np.asarray(pcd.points), pcd, n_vertices, n_triangles
 
 
 def nn_distances(src, dst):
@@ -86,12 +90,12 @@ def main():
     args = parser.parse_args()
 
     print(f"Loading pred: {args.pred}")
-    pred_pts, _ = load_points(args.pred, args.n_samples, args.voxel_size or None)
-    print(f"  {len(pred_pts):,} points")
+    pred_pts, _, pred_verts, pred_tris = load_points(args.pred, args.n_samples, args.voxel_size or None)
+    print(f"  {pred_verts:,} vertices, {pred_tris:,} triangles, {len(pred_pts):,} sampled points")
 
     print(f"Loading gt:   {args.gt}")
-    gt_pts, _ = load_points(args.gt, args.n_samples, args.voxel_size or None)
-    print(f"  {len(gt_pts):,} points")
+    gt_pts, _, gt_verts, gt_tris = load_points(args.gt, args.n_samples, args.voxel_size or None)
+    print(f"  {gt_verts:,} vertices, {gt_tris:,} triangles, {len(gt_pts):,} sampled points")
 
     if args.tau is None:
         tau, diag, spacing, tau_bbox, tau_floor = estimate_tau(gt_pts, args.tau_frac)
@@ -131,6 +135,10 @@ def main():
         "gt_point_spacing": spacing,
         "n_pred": int(len(pred_pts)),
         "n_gt": int(len(gt_pts)),
+        "pred_vertices": int(pred_verts),
+        "pred_triangles": int(pred_tris),
+        "gt_vertices": int(gt_verts),
+        "gt_triangles": int(gt_tris),
         "chamfer_pred_to_gt": mean_p2g,
         "chamfer_gt_to_pred": mean_g2p,
         "chamfer_mean": chamfer,
@@ -149,6 +157,8 @@ def main():
         results["sweep"] = sweep
 
     print("=" * 50)
+    print(f"pred mesh          : {pred_verts:,} verts, {pred_tris:,} tris")
+    print(f"gt mesh            : {gt_verts:,} verts, {gt_tris:,} tris")
     print(f"tau                : {tau:.6f}{'  (auto)' if args.tau is None else ''}")
     print(f"chamfer pred->gt   : {mean_p2g:.6f}")
     print(f"chamfer gt->pred   : {mean_g2p:.6f}")

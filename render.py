@@ -113,9 +113,9 @@ def render_set(model_path, name, iteration, views, scene, gaussians, pipeline, b
         depths_tsdf_fusion.append(depth_tsdf.squeeze().cpu())
         
     if volume is not None:
-        depths_tsdf_fusion = torch.stack(depths_tsdf_fusion, dim=0)
         for idx, view in enumerate(tqdm(views, desc="TSDF Fusion progress")):
             ref_depth = depths_tsdf_fusion[idx].cuda()
+            H, W = ref_depth.shape[-2:]  # per-view dims; intrinsics must match this view
 
             if view.mask is not None:
                 ref_depth[view.mask.squeeze() < 0.5] = 0

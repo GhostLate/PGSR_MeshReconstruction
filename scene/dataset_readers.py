@@ -145,7 +145,7 @@ def storePly(path, xyz, rgb):
     ply_data = PlyData([vertex_element])
     ply_data.write(path)
 
-def readColmapSceneInfo(path, images, eval, llffhold=8):
+def readColmapSceneInfo(path, images, eval, llffhold=8, init_ply=""):
     try:
         cameras_extrinsic_file = os.path.join(path, "sparse", "images.bin")
         cameras_intrinsic_file = os.path.join(path, "sparse", "cameras.bin")
@@ -184,19 +184,26 @@ def readColmapSceneInfo(path, images, eval, llffhold=8):
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
 
-    ply_path = os.path.join(path, "sparse/points3D.ply")
-    bin_path = os.path.join(path, "sparse/points3D.bin")
-    txt_path = os.path.join(path, "sparse/points3D.txt")
-    if not os.path.exists(ply_path) or True:
-        print("Converting point3d.bin to .ply, will happen only the first time you open the scene.")
-        try:
-            xyz, rgb, _ = read_points3D_binary(bin_path)
-            print(f"xyz {xyz.shape}")
-        except:
-            xyz, rgb, _ = read_points3D_text(txt_path)
-        storePly(ply_path, xyz, rgb)
+    if init_ply:
+        # Use a user-provided init cloud (e.g. COLMAP dense fused.ply) instead of sparse points3D.
+        ply_path = init_ply if os.path.isabs(init_ply) else os.path.join(path, init_ply)
+        assert os.path.exists(ply_path), f"init_ply not found: {ply_path}"
+        print(f"Initializing point cloud from {ply_path}")
+    else:
+        ply_path = os.path.join(path, "sparse/points3D.ply")
+        bin_path = os.path.join(path, "sparse/points3D.bin")
+        txt_path = os.path.join(path, "sparse/points3D.txt")
+        if not os.path.exists(ply_path) or True:
+            print("Converting point3d.bin to .ply, will happen only the first time you open the scene.")
+            try:
+                xyz, rgb, _ = read_points3D_binary(bin_path)
+                print(f"xyz {xyz.shape}")
+            except:
+                xyz, rgb, _ = read_points3D_text(txt_path)
+            storePly(ply_path, xyz, rgb)
     try:
         pcd = fetchPly(ply_path)
+        print(f"init point cloud: {pcd.points.shape[0]} points")
     except:
         pcd = None
 

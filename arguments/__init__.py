@@ -60,6 +60,7 @@ class ModelParams(ParamGroup):
         self.multi_view_max_angle = 30
         self.multi_view_min_dis = 0.01
         self.multi_view_max_dis = 1.5
+        self.init_ply = ""  # optional init point cloud (e.g. COLMAP dense fused.ply); empty = use sparse points3D
         super().__init__(parser, "Loading Parameters", sentinel)
 
     def extract(self, args):

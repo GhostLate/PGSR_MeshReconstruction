@@ -78,11 +78,14 @@ The selected COLMAP outputs were used to train PGSR at 7 000 and 30 000 iteratio
 | `base_r2_crop` | 0.0850 | 0.0121 | 18.74 | 30.80 |
 | `base_r2_f2_crop` | 0.1197 | 0.0144 | 16.02 | 30.41 |
 
+(`base_r1` was trained with the parameter `-r 2`, meaning all images were downscaled 2x on every axis.)
+
 ### Observations
 
 - The `_crop` variants exhibit a large train/test gap (train PSNR ≈ 31 but test PSNR drops to 16–19). This is a classic distribution-shift symptom: the fixed-bbox crop changes the field of view between training and test cameras, so held-out views fall partially outside the trained volume.
 - `base_r2_f2` reaches the highest test PSNR (25.49) — the milder filter removes the worst frames without overly thinning the dataset.
 - `base_r1` and `base_r2` give nearly identical PSNR; the ASP variant changes PSNR only marginally.
+
 
 Each training run took ≈ 3 hours, which capped the number of configurations that could be evaluated within the time budget for this task.
 
@@ -121,8 +124,20 @@ Each reconstructed mesh was rigidly aligned to the ground-truth scanner mesh in 
 
 [Mesh Example Images](Meshes.md)
 
-You can download all eval data and aligned and cutted meshes here:
+You can download all evaluation data, along with the aligned and cut meshes, here: 
 [Eval Data](https://drive.google.com/file/d/1wbiKDa1E_N_gL8U0Bp4M4dXqN5l-AHUr/view?usp=drive_link)
+
+---
+
+## [Update] Evaluation results with more accurate cut meshes
+
+I realigned all meshes in CloudCompare and cut them using the same bounding box.
+The results are more accurate now that the lower part of the statue is identical in both the GT and predicted meshes.
+
+![eval image](report/eval_2.png)
+
+You can download all updated evaluation data, along with the aligned and cut meshes, here: 
+[Updated Eval Data](https://drive.google.com/file/d/1K41URdzY9hmv8Bgz8ClKhZ55eufpqJMI/view?usp=drive_link)
 
 ---
 

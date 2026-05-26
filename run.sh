@@ -7,6 +7,9 @@ python render.py -m ./data/output/base_r2 --max_depth 10.0 --voxel_size 0.002 # 
 # Visualize
 python scripts/visualize_mesh.py data/other/fusion.ply --wireframe --show-axes --show-bbox
 
+# Filer Mesh
+python scripts/clean_mesh.py data/eval/base_r1_asp/tsdf_fusion_v-0.002_d-10.0_f_post_cut1.ply data/eval/base_r1_asp/tsdf_fusion_v-0.002_d-10.0_f_post_cut2.ply
+
 # Eval meshes (after aligning)
 python scripts/compare_meshes.py \
       --pred data/output/out1/mesh/tsdf_fusion_d7_post_cut.ply \

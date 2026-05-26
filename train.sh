@@ -41,7 +41,87 @@
 # [ITER 7000] Evaluating train: L1 0.01333622317761183 PSNR 30.719336318969727 [21/05 02:59:39]
 
 
-# what is max depth in render.py?
-# what is use_depth_filter in render.py?
-# what is use_depth_filter in render.py?
-# what is max_abs_split_points in train.py?
+# python scripts/compare_meshes.py \
+#      --pred data/eval/base_r1/tsdf_fusion_v-0.002_d-6.0_post_cut1.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r1/tsdf_fusion_v-0.002_d-6.0_post_cut1
+#
+#python scripts/compare_meshes.py \
+#      --pred data/eval/base_r1/tsdf_fusion_v-0.002_d-10.0_f_post_cut1.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r1/tsdf_fusion_v-0.002_d-10.0_f_post_cut1
+#
+#
+#python scripts/compare_meshes.py \
+#      --pred data/eval/base_r1_asp/tsdf_fusion_v-0.002_d-6.0_post_cut1.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r1_asp/tsdf_fusion_v-0.002_d-6.0_post_cut1
+#
+#python scripts/compare_meshes.py \
+#      --pred data/eval/base_r1_asp/tsdf_fusion_v-0.002_d-10.0_f_post_cut1.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r1_asp/tsdf_fusion_v-0.002_d-10.0_f_post_cut1
+#
+#
+#python scripts/compare_meshes.py \
+#      --pred data/eval/base_r1_asp/tsdf_fusion_v-0.002_d-6.0_post_cut2.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r1_asp/tsdf_fusion_v-0.002_d-6.0_post_cut2
+#
+#python scripts/compare_meshes.py \
+#      --pred data/eval/base_r1_asp/tsdf_fusion_v-0.002_d-10.0_f_post_cut2.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r1_asp/tsdf_fusion_v-0.002_d-10.0_f_post_cut2
+#
+#
+#python scripts/compare_meshes.py \
+#      --pred data/eval/base_r2/tsdf_fusion_v-0.002_d-6.0_post_cut1.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r2/tsdf_fusion_v-0.002_d-6.0_post_cut1
+#
+#python scripts/compare_meshes.py \
+#      --pred data/eval/base_r2/tsdf_fusion_v-0.002_d-10.0_f_post_cut1.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r2/tsdf_fusion_v-0.002_d-10.0_f_post_cut1
+#
+#
+#python scripts/compare_meshes.py \
+#      --pred data/eval/base_r2_f2/tsdf_fusion_v-0.002_d-6.0_post_cut1.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r2_f2/tsdf_fusion_v-0.002_d-6.0_post_cut1
+#
+#python scripts/compare_meshes.py \
+#      --pred data/eval/base_r2_f2/tsdf_fusion_v-0.002_d-10.0_f_post_cut1.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r2_f2/tsdf_fusion_v-0.002_d-10.0_f_post_cut1
+#
+#
+#python scripts/compare_meshes.py \
+#      --pred data/eval/base_r2_crop/tsdf_fusion_v-0.002_d-10.0_f_post_cut1.ply \
+#      --gt   data/other/fusion_cut.ply \
+#      --out-dir data/eval/base_r2_crop/tsdf_fusion_v-0.002_d-10.0_f_post_cut1
+
+python scripts/preprocess/convert_extra.py --data_path data/datasets/arctic
+
+python train.py -s ./data/colmap/arctic1 -m ./data/output/arctic --opacity_cull_threshold 0.05 --max_abs_split_points 0 -r 2 --multi_view_max_dis 8.0 --multi_view_max_angle 90 --use_virtul_cam --init_ply dense/fused_photo.ply
+python render.py -m ./data/output/arctic --max_depth 10.0 --voxel_size 0.002 # --use_depth_filter
+python scripts/visualize_mesh.py data/output/arctic/mesh/tsdf_fusion_v-0.002_d-10.0_post.ply
+
+python train.py -s ./data/colmap/arctic1 -m ./data/output/arctic1 -r 2 \
+    --init_ply sparse/points3D.ply \
+    --iterations 10000 \
+    --multi_view_max_dis 8.0 --multi_view_max_angle 90 \
+    --single_view_weight_from_iter 500 --multi_view_weight_from_iter 500 \
+    --single_view_weight 0.04 \
+    --multi_view_pixel_noise_th 3.0 \
+    --opacity_reset_interval 100000 \
+    --densify_until_iter 4000 --densify_grad_threshold 0.0005 \
+    --opacity_cull_threshold 0.05 --max_abs_split_points 0
+
+colmap model_converter \
+    --input_path $SCENE/sparse \
+    --output_path $SCENE/sparse/points.ply \
+    --output_type PLY
+
+python scripts/visualize_mesh.py data/colmap/arctic/sparse/points3D.ply
+python scripts/visualize_mesh.py data/colmap/base_r1/sparse/points3D.ply
